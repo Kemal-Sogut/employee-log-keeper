@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Clock, User } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AttendanceRecord {
   id: string;
@@ -20,11 +21,13 @@ interface AttendanceLogProps {
   employeeName: string;
   onLoadMore: () => AttendanceRecord[];
   totalRecords: number;
+  onDeleteRecord: (id: string) => void;
 }
 
-export const AttendanceLog = ({ records, employeeName, onLoadMore, totalRecords }: AttendanceLogProps) => {
+export const AttendanceLog = ({ records, employeeName, onLoadMore, totalRecords, onDeleteRecord }: AttendanceLogProps) => {
   const [showingAll, setShowingAll] = useState(false);
   const [displayedRecords, setDisplayedRecords] = useState(records);
+  const { user } = useAuth();
 
   const handleLoadMore = () => {
     const allRecords = onLoadMore();
@@ -92,6 +95,7 @@ export const AttendanceLog = ({ records, employeeName, onLoadMore, totalRecords 
           <div className="space-y-3">
             {recordsToShow.map((record) => {
               const { date, time } = formatDateTime(record.created_at);
+              const [d, t] = record.date.split(" ");
               return (
                 <div
                   key={record.id}
@@ -103,9 +107,18 @@ export const AttendanceLog = ({ records, employeeName, onLoadMore, totalRecords 
                       {getActionBadge(record.action)}
                     </div>
                     <p className="text-sm text-gray-600">
-                      Date: {record.date} • Recorded: {date} at {time}
+                      Date: {d}{t ? ` at ${t}` : ""} • Recorded: {date} at {time}
                     </p>
                   </div>
+                  {record.user_id === user?.id && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onDeleteRecord(record.id)}
+                    >
+                      Delete
+                    </Button>
+                  )}
                 </div>
               );
             })}

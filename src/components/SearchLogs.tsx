@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, User } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AttendanceRecord {
   id: string;
@@ -19,9 +20,11 @@ interface AttendanceRecord {
 interface SearchLogsProps {
   onSearch: (employeeName: string) => AttendanceRecord[];
   allRecords: AttendanceRecord[];
+  onDeleteRecord: (id: string) => void;
 }
 
-export const SearchLogs = ({ onSearch, allRecords }: SearchLogsProps) => {
+export const SearchLogs = ({ onSearch, allRecords, onDeleteRecord }: SearchLogsProps) => {
+  const { user } = useAuth();
   const [searchName, setSearchName] = useState("");
   const [searchResults, setSearchResults] = useState<AttendanceRecord[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
@@ -115,6 +118,7 @@ export const SearchLogs = ({ onSearch, allRecords }: SearchLogsProps) => {
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {searchResults.map((record) => {
                   const { date, time } = formatDateTime(record.created_at);
+                  const [d, t] = record.date.split(" ");
                   return (
                     <div
                       key={record.id}
@@ -126,9 +130,18 @@ export const SearchLogs = ({ onSearch, allRecords }: SearchLogsProps) => {
                           {getActionBadge(record.action)}
                         </div>
                         <p className="text-xs text-gray-600">
-                          Date: {record.date} • Recorded: {date} at {time}
+                          Date: {d}{t ? ` at ${t}` : ""} • Recorded: {date} at {time}
                         </p>
                       </div>
+                      {record.user_id === user?.id && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onDeleteRecord(record.id)}
+                        >
+                          Delete
+                        </Button>
+                      )}
                     </div>
                   );
                 })}

@@ -42,7 +42,7 @@ export const useAttendance = () => {
     }
   };
 
-  const saveRecord = async (record: { employee_name: string; date: string; action: "sign-in" | "sign-out" }) => {
+  const saveRecord = async (record: { employee_name: string; date: string; time: string; action: "sign-in" | "sign-out" }) => {
     if (!user || !session) {
       toast({
         title: "Authentication Required",
@@ -59,7 +59,7 @@ export const useAttendance = () => {
           {
             user_id: user.id,
             employee_name: record.employee_name,
-            date: record.date,
+            date: `${record.date} ${record.time}`,
             action: record.action,
           }
         ])
@@ -93,6 +93,41 @@ export const useAttendance = () => {
     return limit ? employeeRecords.slice(0, limit) : employeeRecords;
   };
 
+  const deleteRecord = async (id: string) => {
+    if (!user || !session) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to modify attendance records.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('attendance_records')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setRecords(prev => prev.filter(record => record.id !== id));
+
+      toast({
+        title: 'Record Removed',
+        description: 'The attendance record has been deleted.',
+      });
+    } catch (error: any) {
+      console.error('Error deleting record:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete attendance record.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   useEffect(() => {
     if (session) {
       fetchRecords();
@@ -108,5 +143,6 @@ export const useAttendance = () => {
     saveRecord,
     getEmployeeRecords,
     fetchRecords,
+    deleteRecord,
   };
 };
