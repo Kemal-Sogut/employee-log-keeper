@@ -7,8 +7,8 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (name: string, password: string) => Promise<{ error: any }>;
+  signIn: (name: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
 
@@ -39,23 +39,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string) => {
-    const redirectUrl = `${window.location.origin}/`;
+  const signUp = async (name: string, password: string) => {
+    // Create a temporary email using the name
+    const email = `${name.toLowerCase().replace(/\s+/g, '.')}@temp.local`;
     
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl,
         data: {
-          full_name: fullName,
+          full_name: name,
         }
       }
     });
     return { error };
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (name: string, password: string) => {
+    // Use the same email format for sign in
+    const email = `${name.toLowerCase().replace(/\s+/g, '.')}@temp.local`;
+    
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,

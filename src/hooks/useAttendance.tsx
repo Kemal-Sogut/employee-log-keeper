@@ -29,7 +29,7 @@ export const useAttendance = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setRecords(data || []);
+      setRecords((data || []) as AttendanceRecord[]);
     } catch (error: any) {
       console.error('Error fetching records:', error);
       toast({
@@ -68,7 +68,7 @@ export const useAttendance = () => {
 
       if (error) throw error;
 
-      setRecords(prev => [data, ...prev]);
+      setRecords(prev => [data as AttendanceRecord, ...prev]);
       
       toast({
         title: "Success!",
