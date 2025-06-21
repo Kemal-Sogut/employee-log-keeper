@@ -1,16 +1,17 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "lucide-react";
-import { AttendanceRecord } from "@/types/attendance";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AttendanceFormProps {
-  onSubmit: (record: Omit<AttendanceRecord, "id" | "timestamp">) => void;
+  onSubmit: (record: { employee_name: string; date: string; action: "sign-in" | "sign-out" }) => Promise<void>;
 }
 
 export const AttendanceForm = ({ onSubmit }: AttendanceFormProps) => {
@@ -18,6 +19,26 @@ export const AttendanceForm = ({ onSubmit }: AttendanceFormProps) => {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [action, setAction] = useState<"sign-in" | "sign-out" | "">("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    // Fetch user's profile to pre-fill employee name
+    const fetchProfile = async () => {
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('employee_name')
+        .eq('id', user.id)
+        .single();
+
+      if (!error && data) {
+        setEmployeeName(data.employee_name);
+      }
+    };
+
+    fetchProfile();
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,11 +52,25 @@ export const AttendanceForm = ({ onSubmit }: AttendanceFormProps) => {
       return;
     }
 
+    // Validate date is not in the future
+    const selectedDate = new Date(date);
+    const today = new Date();
+    today.setHours(23, 59, 59, 999); // End of today
+    
+    if (selectedDate > today) {
+      toast({
+        title: "Invalid Date",
+        description: "Cannot record attendance for future dates.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
-      onSubmit({
-        employeeName: employeeName.trim(),
+      await onSubmit({
+        employee_name: employeeName.trim(),
         date,
         action: action as "sign-in" | "sign-out",
       });
@@ -85,6 +120,7 @@ export const AttendanceForm = ({ onSubmit }: AttendanceFormProps) => {
               onChange={(e) => setEmployeeName(e.target.value)}
               className="h-11 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
               disabled={isSubmitting}
+              maxLength={100}
             />
           </div>
 
@@ -99,6 +135,7 @@ export const AttendanceForm = ({ onSubmit }: AttendanceFormProps) => {
               onChange={(e) => setDate(e.target.value)}
               className="h-11 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
               disabled={isSubmitting}
+              max={new Date().toISOString().split('T')[0]}
             />
           </div>
 

@@ -1,8 +1,10 @@
 
 export interface AttendanceRecord {
   id: string;
-  employeeName: string;
+  user_id: string;
+  employee_name: string;
   date: string;
   action: "sign-in" | "sign-out";
-  timestamp: string;
+  created_at: string;
+  updated_at: string;
 }

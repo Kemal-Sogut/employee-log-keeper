@@ -3,8 +3,17 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AttendanceRecord } from "@/types/attendance";
 import { Clock, User } from "lucide-react";
+
+interface AttendanceRecord {
+  id: string;
+  user_id: string;
+  employee_name: string;
+  date: string;
+  action: "sign-in" | "sign-out";
+  created_at: string;
+  updated_at: string;
+}
 
 interface AttendanceLogProps {
   records: AttendanceRecord[];
@@ -82,7 +91,7 @@ export const AttendanceLog = ({ records, employeeName, onLoadMore, totalRecords 
         ) : (
           <div className="space-y-3">
             {recordsToShow.map((record) => {
-              const { date, time } = formatDateTime(record.timestamp);
+              const { date, time } = formatDateTime(record.created_at);
               return (
                 <div
                   key={record.id}
@@ -90,7 +99,7 @@ export const AttendanceLog = ({ records, employeeName, onLoadMore, totalRecords 
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-1">
-                      <h3 className="font-semibold text-gray-800">{record.employeeName}</h3>
+                      <h3 className="font-semibold text-gray-800">{record.employee_name}</h3>
                       {getActionBadge(record.action)}
                     </div>
                     <p className="text-sm text-gray-600">

@@ -4,8 +4,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AttendanceRecord } from "@/types/attendance";
 import { Search, User } from "lucide-react";
+
+interface AttendanceRecord {
+  id: string;
+  user_id: string;
+  employee_name: string;
+  date: string;
+  action: "sign-in" | "sign-out";
+  created_at: string;
+  updated_at: string;
+}
 
 interface SearchLogsProps {
   onSearch: (employeeName: string) => AttendanceRecord[];
@@ -21,10 +30,11 @@ export const SearchLogs = ({ onSearch, allRecords }: SearchLogsProps) => {
     e.preventDefault();
     if (!searchName.trim()) return;
 
-    const results = onSearch(searchName.trim());
+    const sanitizedSearchName = searchName.trim().replace(/[<>]/g, '');
+    const results = onSearch(sanitizedSearchName);
     setSearchResults(results);
     setHasSearched(true);
-    console.log(`Searching for records for: ${searchName.trim()}`);
+    console.log(`Searching for records for: ${sanitizedSearchName}`);
     console.log(`Found ${results.length} records`);
   };
 
@@ -53,8 +63,8 @@ export const SearchLogs = ({ onSearch, allRecords }: SearchLogsProps) => {
     );
   };
 
-  // Get unique employee names for suggestions
-  const uniqueEmployees = Array.from(new Set(allRecords.map(record => record.employeeName)));
+  // Get unique employee names for suggestions (only from current user's records)
+  const uniqueEmployees = Array.from(new Set(allRecords.map(record => record.employee_name)));
 
   return (
     <Card className="w-full shadow-lg border-0 bg-white/80 backdrop-blur-sm">
@@ -74,6 +84,7 @@ export const SearchLogs = ({ onSearch, allRecords }: SearchLogsProps) => {
               onChange={(e) => setSearchName(e.target.value)}
               className="flex-1 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
               list="employee-suggestions"
+              maxLength={100}
             />
             <datalist id="employee-suggestions">
               {uniqueEmployees.map((name) => (
@@ -103,7 +114,7 @@ export const SearchLogs = ({ onSearch, allRecords }: SearchLogsProps) => {
             ) : (
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {searchResults.map((record) => {
-                  const { date, time } = formatDateTime(record.timestamp);
+                  const { date, time } = formatDateTime(record.created_at);
                   return (
                     <div
                       key={record.id}
@@ -111,7 +122,7 @@ export const SearchLogs = ({ onSearch, allRecords }: SearchLogsProps) => {
                     >
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-1">
-                          <h4 className="font-medium text-gray-800">{record.employeeName}</h4>
+                          <h4 className="font-medium text-gray-800">{record.employee_name}</h4>
                           {getActionBadge(record.action)}
                         </div>
                         <p className="text-xs text-gray-600">

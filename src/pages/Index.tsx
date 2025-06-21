@@ -3,44 +3,45 @@ import { useState, useEffect } from "react";
 import { AttendanceForm } from "@/components/AttendanceForm";
 import { AttendanceLog } from "@/components/AttendanceLog";
 import { SearchLogs } from "@/components/SearchLogs";
-import { AttendanceRecord } from "@/types/attendance";
+import { UserProfile } from "@/components/UserProfile";
+import { useAttendance } from "@/hooks/useAttendance";
+import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
-  const [records, setRecords] = useState<AttendanceRecord[]>([]);
+  const { user, loading: authLoading } = useAuth();
+  const { records, loading: recordsLoading, saveRecord, getEmployeeRecords } = useAttendance();
   const [lastSubmittedEmployee, setLastSubmittedEmployee] = useState<string>("");
   const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
-    // Load existing records from localStorage on component mount
-    const savedRecords = localStorage.getItem("attendanceRecords");
-    if (savedRecords) {
-      setRecords(JSON.parse(savedRecords));
+    // Set the last submitted employee from user's profile if available
+    if (user && records.length > 0) {
+      const latestRecord = records[0];
+      setLastSubmittedEmployee(latestRecord.employee_name);
     }
-  }, []);
+  }, [user, records]);
 
-  const saveRecord = (record: Omit<AttendanceRecord, "id" | "timestamp">) => {
-    const newRecord: AttendanceRecord = {
-      ...record,
-      id: Date.now().toString(),
-      timestamp: new Date().toISOString(),
-    };
-
-    const updatedRecords = [newRecord, ...records];
-    setRecords(updatedRecords);
-    setLastSubmittedEmployee(record.employeeName);
-    
-    // Save to localStorage
-    localStorage.setItem("attendanceRecords", JSON.stringify(updatedRecords));
-    
-    console.log("New attendance record saved:", newRecord);
+  const handleSaveRecord = async (record: { employee_name: string; date: string; action: "sign-in" | "sign-out" }) => {
+    await saveRecord(record);
+    setLastSubmittedEmployee(record.employee_name);
   };
 
-  const getEmployeeRecords = (employeeName: string, limit?: number) => {
-    const employeeRecords = records.filter(
-      (record) => record.employeeName.toLowerCase() === employeeName.toLowerCase()
+  // Redirect to auth if not authenticated
+  if (!authLoading && !user) {
+    window.location.href = '/auth';
+    return null;
+  }
+
+  if (authLoading || recordsLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
     );
-    return limit ? employeeRecords.slice(0, limit) : employeeRecords;
-  };
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -54,10 +55,10 @@ const Index = () => {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
+        <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {/* Left Column - Form */}
           <div className="space-y-6">
-            <AttendanceForm onSubmit={saveRecord} />
+            <AttendanceForm onSubmit={handleSaveRecord} />
             
             <div className="flex justify-center">
               <button
@@ -76,7 +77,7 @@ const Index = () => {
             )}
           </div>
 
-          {/* Right Column - Recent Records */}
+          {/* Middle Column - Recent Records */}
           <div>
             <AttendanceLog
               records={getEmployeeRecords(lastSubmittedEmployee, 14)}
@@ -84,6 +85,11 @@ const Index = () => {
               onLoadMore={() => getEmployeeRecords(lastSubmittedEmployee)}
               totalRecords={getEmployeeRecords(lastSubmittedEmployee).length}
             />
+          </div>
+
+          {/* Right Column - User Profile */}
+          <div>
+            <UserProfile />
           </div>
         </div>
       </div>
