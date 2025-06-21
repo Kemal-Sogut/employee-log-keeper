@@ -106,7 +106,7 @@ export const AuthForm = () => {
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-gray-800">
-            Attendance Tracker<br></>
+            Attendance Tracker<br />
             Kagit kalemin modasi gecmedi mi?
           </CardTitle>
           <p className="text-gray-600">Access your employee portal</p>
