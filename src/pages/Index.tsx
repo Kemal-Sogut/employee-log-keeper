@@ -9,7 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
   const { user, loading: authLoading } = useAuth();
-  const { records, loading: recordsLoading, saveRecord, getEmployeeRecords } = useAttendance();
+  const { records, loading: recordsLoading, saveRecord, getEmployeeRecords, deleteRecord } = useAttendance();
   const [lastSubmittedEmployee, setLastSubmittedEmployee] = useState<string>("");
   const [showSearch, setShowSearch] = useState(false);
 
@@ -21,7 +21,7 @@ const Index = () => {
     }
   }, [user, records]);
 
-  const handleSaveRecord = async (record: { employee_name: string; date: string; action: "sign-in" | "sign-out" }) => {
+  const handleSaveRecord = async (record: { employee_name: string; date: string; time: string; action: "sign-in" | "sign-out" }) => {
     await saveRecord(record);
     setLastSubmittedEmployee(record.employee_name);
   };
@@ -70,21 +70,23 @@ const Index = () => {
             </div>
 
             {showSearch && (
-              <SearchLogs 
-                onSearch={getEmployeeRecords} 
+              <SearchLogs
+                onSearch={getEmployeeRecords}
                 allRecords={records}
+                onDeleteRecord={deleteRecord}
               />
             )}
           </div>
 
           {/* Middle Column - Recent Records */}
           <div>
-            <AttendanceLog
-              records={getEmployeeRecords(lastSubmittedEmployee, 14)}
-              employeeName={lastSubmittedEmployee}
-              onLoadMore={() => getEmployeeRecords(lastSubmittedEmployee)}
-              totalRecords={getEmployeeRecords(lastSubmittedEmployee).length}
-            />
+          <AttendanceLog
+            records={getEmployeeRecords(lastSubmittedEmployee, 14)}
+            employeeName={lastSubmittedEmployee}
+            onLoadMore={() => getEmployeeRecords(lastSubmittedEmployee)}
+            totalRecords={getEmployeeRecords(lastSubmittedEmployee).length}
+            onDeleteRecord={deleteRecord}
+          />
           </div>
 
           {/* Right Column - User Profile */}

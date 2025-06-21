@@ -11,12 +11,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
 interface AttendanceFormProps {
-  onSubmit: (record: { employee_name: string; date: string; action: "sign-in" | "sign-out" }) => Promise<void>;
+  onSubmit: (record: { employee_name: string; date: string; time: string; action: "sign-in" | "sign-out" }) => Promise<void>;
 }
 
 export const AttendanceForm = ({ onSubmit }: AttendanceFormProps) => {
   const [employeeName, setEmployeeName] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [time, setTime] = useState(new Date().toTimeString().slice(0,5));
   const [action, setAction] = useState<"sign-in" | "sign-out" | "">("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
@@ -43,7 +44,7 @@ export const AttendanceForm = ({ onSubmit }: AttendanceFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!employeeName.trim() || !date || !action) {
+    if (!employeeName.trim() || !date || !time || !action) {
       toast({
         title: "Missing Information",
         description: "Please fill in all fields before submitting.",
@@ -53,7 +54,7 @@ export const AttendanceForm = ({ onSubmit }: AttendanceFormProps) => {
     }
 
     // Validate date is not in the future
-    const selectedDate = new Date(date);
+    const selectedDate = new Date(`${date}T${time}`);
     const today = new Date();
     today.setHours(23, 59, 59, 999); // End of today
     
@@ -72,6 +73,7 @@ export const AttendanceForm = ({ onSubmit }: AttendanceFormProps) => {
       await onSubmit({
         employee_name: employeeName.trim(),
         date,
+        time,
         action: action as "sign-in" | "sign-out",
       });
 
@@ -83,6 +85,7 @@ export const AttendanceForm = ({ onSubmit }: AttendanceFormProps) => {
       // Reset form
       setEmployeeName("");
       setDate(new Date().toISOString().split('T')[0]);
+      setTime(new Date().toTimeString().slice(0,5));
       setAction("");
       
       console.log("Form submitted successfully");
@@ -136,6 +139,20 @@ export const AttendanceForm = ({ onSubmit }: AttendanceFormProps) => {
               className="h-11 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
               disabled={isSubmitting}
               max={new Date().toISOString().split('T')[0]}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="time" className="text-sm font-medium text-gray-700">
+              Time
+            </Label>
+            <Input
+              id="time"
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              className="h-11 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+              disabled={isSubmitting}
             />
           </div>
 
