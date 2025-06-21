@@ -10,14 +10,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { LogIn, UserPlus } from "lucide-react";
 
 export const AuthForm = () => {
-  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !password) {
+    if (!email || !password) {
       toast({
         title: "Missing Information",
         description: "Please fill in all fields.",
@@ -28,7 +29,7 @@ export const AuthForm = () => {
 
     setLoading(true);
     try {
-      const { error } = await signIn(name, password);
+      const { error } = await signIn(email, password);
       if (error) {
         toast({
           title: "Sign In Failed",
@@ -54,7 +55,7 @@ export const AuthForm = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !password) {
+    if (!email || !password || !fullName) {
       toast({
         title: "Missing Information",
         description: "Please fill in all fields.",
@@ -74,7 +75,7 @@ export const AuthForm = () => {
 
     setLoading(true);
     try {
-      const { error } = await signUp(name, password);
+      const { error } = await signUp(email, password, fullName);
       if (error) {
         toast({
           title: "Sign Up Failed",
@@ -84,7 +85,7 @@ export const AuthForm = () => {
       } else {
         toast({
           title: "Account Created!",
-          description: "You can now sign in with your credentials.",
+          description: "Please check your email to verify your account.",
         });
       }
     } catch (error) {
@@ -117,13 +118,13 @@ export const AuthForm = () => {
             <TabsContent value="signin">
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="signin-name">Employee Name</Label>
+                  <Label htmlFor="signin-email">Email</Label>
                   <Input
-                    id="signin-name"
-                    type="text"
-                    placeholder="Enter your full name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    id="signin-email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     disabled={loading}
                     required
                   />
@@ -154,13 +155,25 @@ export const AuthForm = () => {
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="signup-name">Employee Name</Label>
+                  <Label htmlFor="signup-name">Full Name</Label>
                   <Input
                     id="signup-name"
                     type="text"
                     placeholder="Enter your full name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    disabled={loading}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-email">Email</Label>
+                  <Input
+                    id="signup-email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     disabled={loading}
                     required
                   />

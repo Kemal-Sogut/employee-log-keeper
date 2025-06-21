@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +22,7 @@ export const AttendanceForm = ({ onSubmit }: AttendanceFormProps) => {
   const { user } = useAuth();
 
   useEffect(() => {
-    // Fetch user's profile to get employee name
+    // Fetch user's profile to pre-fill employee name
     const fetchProfile = async () => {
       if (!user) return;
 
@@ -45,7 +46,7 @@ export const AttendanceForm = ({ onSubmit }: AttendanceFormProps) => {
     if (!employeeName.trim() || !date || !action) {
       toast({
         title: "Missing Information",
-        description: "Please select an action before submitting.",
+        description: "Please fill in all fields before submitting.",
         variant: "destructive",
       });
       return;
@@ -79,7 +80,9 @@ export const AttendanceForm = ({ onSubmit }: AttendanceFormProps) => {
         description: `${action === "sign-in" ? "Signed in" : "Signed out"} successfully recorded for ${employeeName}`,
       });
 
-      // Reset only the action, keep date and name
+      // Reset form
+      setEmployeeName("");
+      setDate(new Date().toISOString().split('T')[0]);
       setAction("");
       
       console.log("Form submitted successfully");
@@ -106,12 +109,19 @@ export const AttendanceForm = ({ onSubmit }: AttendanceFormProps) => {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-gray-700">
+            <Label htmlFor="employee-name" className="text-sm font-medium text-gray-700">
               Employee Name
             </Label>
-            <div className="h-11 px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-gray-700">
-              {employeeName || "Loading..."}
-            </div>
+            <Input
+              id="employee-name"
+              type="text"
+              placeholder="Enter your full name"
+              value={employeeName}
+              onChange={(e) => setEmployeeName(e.target.value)}
+              className="h-11 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+              disabled={isSubmitting}
+              maxLength={100}
+            />
           </div>
 
           <div className="space-y-2">

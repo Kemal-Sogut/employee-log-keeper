@@ -44,8 +44,12 @@ export const UserProfile = () => {
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <p className="text-sm text-gray-600">Employee Name</p>
+          <p className="text-sm text-gray-600">Name</p>
           <p className="font-medium">{profile?.employee_name || 'Loading...'}</p>
+        </div>
+        <div>
+          <p className="text-sm text-gray-600">Email</p>
+          <p className="font-medium">{user.email}</p>
         </div>
         <Button 
           onClick={handleSignOut}
