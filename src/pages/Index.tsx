@@ -47,7 +47,7 @@ const Index = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            Employee Attendance Tracker
+            Summer Job Attendance Tracker
           </h1>
           <p className="text-gray-600 text-lg">
             Track your daily sign-in and sign-out times
