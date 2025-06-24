@@ -77,11 +77,6 @@ export const AttendanceForm = ({ onSubmit }: AttendanceFormProps) => {
         action: action as "sign-in" | "sign-out",
       });
 
-      toast({
-        title: "Success!",
-        description: `${action === "sign-in" ? "Signed in" : "Signed out"} successfully recorded for ${employeeName}`,
-      });
-
       // Reset form
       setEmployeeName("");
       setDate(new Date().toISOString().split('T')[0]);
