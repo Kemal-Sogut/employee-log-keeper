@@ -11,6 +11,7 @@ interface AttendanceRecord {
   user_id: string;
   employee_name: string;
   date: string;
+  time: string;
   action: "sign-in" | "sign-out";
   created_at: string;
   updated_at: string;
@@ -95,7 +96,8 @@ export const AttendanceLog = ({ records, employeeName, onLoadMore, totalRecords,
           <div className="space-y-3">
             {recordsToShow.map((record) => {
               const { date, time } = formatDateTime(record.created_at);
-              const [d, t] = record.date.split(" ");
+              const d = record.date.split(" ")[0];
+              const chosenTime = record.time || record.date.split(" ")[1];
               return (
                 <div
                   key={record.id}
@@ -107,7 +109,7 @@ export const AttendanceLog = ({ records, employeeName, onLoadMore, totalRecords,
                       {getActionBadge(record.action)}
                     </div>
                     <p className="text-sm text-gray-600">
-                      Date: {d}{t ? ` at ${t}` : ""} • Recorded: {date} at {time}
+                      Date: {d}{chosenTime ? ` at ${chosenTime}` : ""} • Recorded: {date} at {time}
                     </p>
                   </div>
                   {record.user_id === user?.id && (
