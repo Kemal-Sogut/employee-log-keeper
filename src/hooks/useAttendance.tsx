@@ -9,6 +9,7 @@ export interface AttendanceRecord {
   user_id: string;
   employee_name: string;
   date: string;
+  time: string;
   action: "sign-in" | "sign-out";
   created_at: string;
   updated_at: string;
@@ -59,7 +60,8 @@ export const useAttendance = () => {
           {
             user_id: user.id,
             employee_name: record.employee_name,
-            date: `${record.date} ${record.time}`,
+            date: record.date,
+            time: record.time,
             action: record.action,
           }
         ])

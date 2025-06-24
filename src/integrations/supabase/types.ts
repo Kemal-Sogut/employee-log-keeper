@@ -14,6 +14,7 @@ export type Database = {
           action: string
           created_at: string
           date: string
+          time: string
           employee_name: string
           id: string
           updated_at: string
@@ -23,6 +24,7 @@ export type Database = {
           action: string
           created_at?: string
           date: string
+          time: string
           employee_name: string
           id?: string
           updated_at?: string
@@ -32,6 +34,7 @@ export type Database = {
           action?: string
           created_at?: string
           date?: string
+          time?: string
           employee_name?: string
           id?: string
           updated_at?: string
