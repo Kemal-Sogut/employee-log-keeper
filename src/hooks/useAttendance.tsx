@@ -30,7 +30,14 @@ export const useAttendance = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setRecords(data || []);
+      
+      // Type assertion to ensure action field matches our union type
+      const typedRecords = (data || []).map(record => ({
+        ...record,
+        action: record.action as "sign-in" | "sign-out"
+      })) as AttendanceRecord[];
+      
+      setRecords(typedRecords);
     } catch (error: any) {
       console.error('Error fetching records:', error);
       toast({
@@ -70,14 +77,20 @@ export const useAttendance = () => {
 
       if (error) throw error;
 
-      setRecords(prev => [data, ...prev]);
+      // Type assertion for the returned data
+      const typedData = {
+        ...data,
+        action: data.action as "sign-in" | "sign-out"
+      } as AttendanceRecord;
+
+      setRecords(prev => [typedData, ...prev]);
       
       toast({
         title: "Success!",
         description: `${record.action === "sign-in" ? "Signed in" : "Signed out"} successfully recorded.`,
       });
 
-      return data;
+      return typedData;
     } catch (error: any) {
       console.error('Error saving record:', error);
       toast({
