@@ -15,7 +15,7 @@ export const TotalHours = ({ records, employeeName }: TotalHoursProps) => {
       <CardHeader className="pb-4">
         <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
           <Hourglass className="h-5 w-5 text-indigo-600" />
-          Total Hours
+          Total Worked Hours
         </CardTitle>
       </CardHeader>
       <CardContent>
