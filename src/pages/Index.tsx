@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { AttendanceForm } from "@/components/AttendanceForm";
 import { AttendanceLog } from "@/components/AttendanceLog";
+import { TotalHours } from "@/components/TotalHours";
 import { SearchLogs } from "@/components/SearchLogs";
 import { UserProfile } from "@/components/UserProfile";
 import { useAttendance } from "@/hooks/useAttendance";
@@ -78,15 +79,19 @@ const Index = () => {
             )}
           </div>
 
-          {/* Middle Column - Recent Records */}
-          <div>
-          <AttendanceLog
-            records={getEmployeeRecords(lastSubmittedEmployee, 14)}
-            employeeName={lastSubmittedEmployee}
-            onLoadMore={() => getEmployeeRecords(lastSubmittedEmployee)}
-            totalRecords={getEmployeeRecords(lastSubmittedEmployee).length}
-            onDeleteRecord={deleteRecord}
-          />
+          {/* Middle Column - Summary and Records */}
+          <div className="space-y-6">
+            <TotalHours
+              records={getEmployeeRecords(lastSubmittedEmployee)}
+              employeeName={lastSubmittedEmployee}
+            />
+            <AttendanceLog
+              records={getEmployeeRecords(lastSubmittedEmployee, 14)}
+              employeeName={lastSubmittedEmployee}
+              onLoadMore={() => getEmployeeRecords(lastSubmittedEmployee)}
+              totalRecords={getEmployeeRecords(lastSubmittedEmployee).length}
+              onDeleteRecord={deleteRecord}
+            />
           </div>
 
           {/* Right Column - User Profile */}
